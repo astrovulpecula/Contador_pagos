@@ -157,12 +157,20 @@
       const card = document.getElementById(cardId);
       const countEl = card.querySelector('.count');
       let count = parseInt(localStorage.getItem(storageKey) || '0', 10);
-      countEl.textContent = count;
+
+      const render = () => { countEl.textContent = count; };
+      render();
 
       function increment() {
         count += 1;
-        countEl.textContent = count;
         localStorage.setItem(storageKey, String(count));
+        render();
+      }
+
+      function setValue(v) {
+        count = parseInt(v, 10) || 0;
+        localStorage.setItem(storageKey, String(count));
+        render();
       }
 
       card.addEventListener('click', increment);
@@ -173,26 +181,21 @@
           increment();
         }
       });
+
+      // Exponer setters/gets en el elemento para poder resetear sin desincronizar el cierre
+      card._setValue = setValue;
+      card._getValue = () => count;
     }
 
     // Inicializar contadores
     setupCounter('ella', 'contador_ella');
     setupCounter('el', 'contador_el');
-
-    // Función para establecer un valor específico y persistirlo
-    function setCounter(cardId, storageKey, value){
-      const card = document.getElementById(cardId);
-      const countEl = card.querySelector('.count');
-      localStorage.setItem(storageKey, String(value));
-      countEl.textContent = value;
-    }
-
     // Reset global con confirmación
     function resetAll(){
       const ok = confirm('¿Reiniciar los dos contadores? Esta acción no se puede deshacer.');
       if(!ok) return;
-      setCounter('ella','contador_ella',0);
-      setCounter('el','contador_el',0);
+      document.getElementById('ella')._setValue(0);
+      document.getElementById('el')._setValue(0);
     }
     document.getElementById('btn-reset').addEventListener('click', resetAll);
 

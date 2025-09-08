@@ -124,7 +124,13 @@
     .card h2.name:hover { text-decoration: underline dotted; }
 
     @media (max-width: 680px) {
-      .grid { gap: 12px; grid-template-columns: 1fr; } /* en móvil: una columna (apilados) */
+      /* En móvil: flujo normal (no centrado vertical) y controles siempre visibles */
+      body { display: block; }
+      .wrapper { width: 100vw; padding: 12px; margin: 0 auto; }
+      .grid { gap: 12px; grid-template-columns: 1fr; }
+      .card { min-height: 42vh; padding: 20px; }
+      .toolbar { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 8px); z-index: 100; }
+    } /* en móvil: una columna (apilados) */
       .card { min-height: 42vh; padding: 20px; }
     }
     

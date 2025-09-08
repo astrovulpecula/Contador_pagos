@@ -307,11 +307,10 @@
     const handleReset = (e) => {
       e.preventDefault();
       e.stopPropagation();
-      if (__resetLock) return; // evita doble confirm por pointerup+click
+      if (__resetLock) return; // evita doble disparo por pointerup+click
       __resetLock = true;
-      const ok = confirm('¿Reiniciar los dos contadores? Esta acción no se puede deshacer.');
-      if (ok) resetAll();
-      setTimeout(() => { __resetLock = false; }, 350);
+      resetAll(); // sin confirmación, resetea directamente
+      setTimeout(() => { __resetLock = false; }, 250);
     };
     resetBtn.addEventListener('pointerup', handleReset, { passive: false });
     resetBtn.addEventListener('click', handleReset);

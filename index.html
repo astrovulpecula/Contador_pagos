@@ -14,6 +14,7 @@
       --text: #eaf6ff;
       --neon-ella: #ff4d9d;
       --neon-el: #00e5ff;
+      --neon-green: #39ff14;
       --panel: rgba(8, 10, 26, 0.6);
       --border: rgba(255, 255, 255, 0.08);
       /* posición del foco para el fondo (se actualiza con el puntero) */
@@ -117,13 +118,35 @@
       text-shadow: 0 0 6px rgba(255,255,255,.15);
     }
 
+    /* Bloquea el zoom por doble-tap (mantiene pinch-zoom) y estilo de nombre editable */
+    body, .card { touch-action: manipulation; }
+    .card h2.name { cursor: pointer; }
+    .card h2.name:hover { text-decoration: underline dotted; }
+
     @media (max-width: 680px) {
       .grid { gap: 12px; grid-template-columns: 1fr; } /* en móvil: una columna (apilados) */
       .card { min-height: 42vh; padding: 20px; }
     }
-      .card { min-height: 42vh; padding: 20px; }
-    }
-      /* Toolbar y botón */
+    
+    /* Toolbar, botones y estadísticas */
+    .toolbar { display:flex; justify-content:flex-end; align-items:center; margin-bottom:12px; gap:8px; }
+    .btn { appearance:none; border:1px solid var(--border); background: linear-gradient(180deg, rgba(18,22,48,.8), rgba(10,12,28,.8)); color: var(--text); padding:10px 14px; border-radius:14px; font-weight:700; letter-spacing:.3px; cursor:pointer; transition: transform .06s ease, box-shadow .2s ease, filter .2s ease; }
+    .btn:hover { box-shadow: 0 0 14px color-mix(in oklab, var(--neon-el) 35%, transparent); }
+    .btn:active { transform: scale(.98); }
+    .btn.reset { text-transform: uppercase; }
+    .btn.toggle.on { box-shadow: 0 0 16px color-mix(in oklab, var(--neon-el) 45%, transparent); outline: 1px solid rgba(255,255,255,.14); }
+    .stats { text-align:center; font-weight:700; margin: 0; opacity:.95; text-shadow: 0 0 6px rgba(255,255,255,.12); }
+    .stats .pct { opacity:.85; font-weight:600; }
+    .summary-card { margin: 8px 0 14px; border-radius: 16px; border: 1px solid rgba(57,255,20,0.25); background: linear-gradient(180deg, rgba(10,22,10,.35), rgba(6,16,6,.28)); box-shadow: 0 0 18px rgba(57,255,20,0.25) inset, 0 0 30px rgba(57,255,20,0.15); padding: 10px 14px; color: var(--text); }
+    .stats { text-align:center; margin: 0; }
+    .stats .total { font-weight: 900; text-transform: uppercase; letter-spacing:.6px; color: var(--neon-green); font-size: clamp(1rem, 2.2vw, 1.4rem); text-shadow: 0 0 6px rgba(57,255,20,.6), 0 0 18px rgba(57,255,20,.35), 0 0 36px rgba(57,255,20,.18); }
+    .stats .detail { margin-top: 2px; font-weight: 700; opacity:.95; font-size: clamp(.9rem, 1.6vw, 1rem); }
+    .stats .name-a { color: var(--neon-ella); text-shadow: 0 0 6px color-mix(in oklab, var(--neon-ella) 60%, transparent); }
+    .stats .name-b { color: var(--neon-el); text-shadow: 0 0 6px color-mix(in oklab, var(--neon-el) 60%, transparent); }
+    .stats .pct { opacity:.9; font-weight:800; }
+    .instructions { margin-top: 10px; text-align:center; opacity:.85; font-size:.95rem; }
+    .stats .pct { opacity:.85; font-weight:600; }
+    /* Toolbar y botón */
     .toolbar { display:flex; justify-content:flex-end; align-items:center; margin-bottom:12px; gap:8px; }
     .btn { appearance:none; border:1px solid var(--border); background: linear-gradient(180deg, rgba(18,22,48,.8), rgba(10,12,28,.8)); color: var(--text); padding:10px 14px; border-radius:14px; font-weight:700; letter-spacing:.3px; cursor:pointer; transition: transform .06s ease, box-shadow .2s ease, filter .2s ease; }
     .btn:hover { box-shadow: 0 0 14px color-mix(in oklab, var(--neon-el) 35%, transparent); }
@@ -134,24 +157,29 @@
 <body>
   <div class="wrapper">
     <div class="toolbar" role="region" aria-label="Controles">
-      <button class="btn reset" id="btn-reset" aria-label="Reiniciar contadores">Reset</button>
+      <button type="button" class="btn" id="btn-undo" aria-label="Deshacer último toque">Undo</button>
+      <button type="button" class="btn reset" id="btn-reset" aria-label="Reiniciar contadores">Reset</button>
+      <button type="button" class="btn toggle" id="btn-sound" aria-pressed="false" aria-label="Alternar sonido/háptica">Sonido: OFF</button>
+    </div>
+    <div class="summary-card" role="region" aria-label="Resumen total">
+      <div class="stats" id="stats" aria-live="polite" aria-atomic="true"></div>
     </div>
 
     <div class="grid">
       <!-- Cuadro: Ana -->
       <div class="card" id="ella" data-person="ella" role="button" aria-pressed="false" tabindex="0" aria-label="Sumar 1 punto a Ella">
-        <h2>Ella</h2>
+        <h2 class="name">Ella</h2>
         <div class="count" aria-live="polite" aria-atomic="true">0</div>
-        <div class="hint">Toca o pulsa Espacio/Enter</div>
       </div>
 
       <!-- Cuadro: Alvaro -->
       <div class="card" id="el" data-person="el" role="button" aria-pressed="false" tabindex="0" aria-label="Sumar 1 punto a Él">
-        <h2>Él</h2>
+        <h2 class="name">Él</h2>
         <div class="count" aria-live="polite" aria-atomic="true">0</div>
-        <div class="hint">Toca o pulsa Espacio/Enter</div>
       </div>
     </div>
+
+    <div class="instructions">Toque = +1 · Mantener = −1 · Toca el nombre para renombrar.</div>
   </div>
 
   <script>
@@ -164,43 +192,212 @@
       const render = () => { countEl.textContent = count; };
       render();
 
-      function increment() {
-        count += 1;
+      function change(delta, record=true) {
+        const prev = count;
+        count = Math.max(0, count + delta);
+        if (count === prev) return; // no bajo de 0
         localStorage.setItem(storageKey, String(count));
         render();
+        if (record) pushAction(cardId, delta);
+        feedback(delta);
+        updateTotals();
       }
 
       function setValue(v) {
-        count = parseInt(v, 10) || 0;
+        const val = Math.max(0, parseInt(v, 10) || 0);
+        count = val;
         localStorage.setItem(storageKey, String(count));
         render();
       }
 
-      card.addEventListener('click', increment);
+      // Interacción por puntero: tap = +1, pulsación larga = -1
+      let pressTimer = null;
+      let longPressFired = false;
 
+      const onPointerDown = (e) => {
+        // Evitar seleccionar texto accidentalmente
+        e.preventDefault();
+        longPressFired = false;
+        pressTimer = setTimeout(() => {
+          longPressFired = true;
+          change(-1);
+        }, 500);
+      };
+
+      const clearPress = () => {
+        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+      };
+
+      const onPointerUp = (e) => {
+        if (!pressTimer) return; // ya se gestionó o canceló
+        clearPress();
+        if (!longPressFired) change(+1);
+      };
+
+      card.addEventListener('pointerdown', onPointerDown);
+      card.addEventListener('pointerup', onPointerUp);
+      card.addEventListener('pointerleave', clearPress);
+      card.addEventListener('pointercancel', clearPress);
+
+      // Accesible por teclado: Espacio/Enter = +1
       card.addEventListener('keydown', (e) => {
         if (e.code === 'Space' || e.code === 'Enter') {
           e.preventDefault();
-          increment();
+          change(+1);
         }
       });
 
-      // Exponer setters/gets en el elemento para poder resetear sin desincronizar el cierre
+      // Exponer helpers
       card._setValue = setValue;
       card._getValue = () => count;
+      card._applyDelta = (d, record=false) => change(d, record);
     }
 
-    // Inicializar contadores
+    // Gestión de nombres editables con persistencia
+    function setupName(cardId, defaultName, storageKey){
+      const card = document.getElementById(cardId);
+      const nameEl = card.querySelector('h2.name');
+      let name = (localStorage.getItem(storageKey) || defaultName).trim();
+      if (!name) name = defaultName;
+      nameEl.textContent = name;
+      card.setAttribute('aria-label', `Sumar 1 punto a ${name}`);
+
+      const openPrompt = () => {
+        const proposed = prompt('Nombre para este contador:', name);
+        if (proposed === null) return; // cancelado
+        const nn = proposed.trim().slice(0, 24);
+        if (!nn) return;
+        name = nn;
+        nameEl.textContent = name;
+        localStorage.setItem(storageKey, name);
+        card.setAttribute('aria-label', `Sumar 1 punto a ${name}`);
+        updateTotals();
+      };
+
+      // Click/touch sobre el nombre: renombrar (sin sumar/restar)
+      nameEl.addEventListener('click', (e) => { e.stopPropagation(); openPrompt(); });
+      nameEl.addEventListener('touchend', (e) => { e.stopPropagation(); e.preventDefault(); openPrompt(); }, { passive: false });
+      // Bloquear propagación a la tarjeta para que no dispare timers de long-press
+      nameEl.addEventListener('pointerdown', (e)=> e.stopPropagation());
+      nameEl.addEventListener('pointerup', (e)=> e.stopPropagation());
+      nameEl.addEventListener('pointercancel', (e)=> e.stopPropagation());
+    }
+
+    // Utilidades: historial (Undo), sonido/háptica y totales (Undo), sonido/háptica y totales
+    const history = [];
+    function pushAction(id, delta){ history.push({ id, delta }); }
+
+    // Sonido/Háptica
+    let soundEnabled = localStorage.getItem('sound_enabled') === '1';
+    let _ac = null;
+    function ensureAudio(){
+      if (!_ac) _ac = new (window.AudioContext || window.webkitAudioContext)();
+      if (_ac.state === 'suspended') _ac.resume();
+    }
+    function beep(type='up'){
+      try {
+        ensureAudio();
+        const ctx = _ac;
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'sine';
+        o.frequency.value = type==='up' ? 880 : 440;
+        g.gain.value = 0.0001;
+        o.connect(g); g.connect(ctx.destination);
+        const now = ctx.currentTime;
+        g.gain.exponentialRampToValueAtTime(0.08, now + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.00001, now + 0.12);
+        o.start(now);
+        o.stop(now + 0.14);
+      } catch {}
+    }
+    function feedback(delta){
+      if (soundEnabled) beep(delta>0 ? 'up' : 'down');
+      if (navigator.vibrate) navigator.vibrate(10);
+    }
+
+    // Totales y porcentajes
+    function updateTotals(){
+      const aCard = document.getElementById('ella');
+      const bCard = document.getElementById('el');
+      const a = aCard._getValue();
+      const b = bCard._getValue();
+      const total = a + b;
+      const pa = total ? Math.round((a/total)*100) : 0;
+      const pb = total ? Math.round((b/total)*100) : 0;
+      const nameA = aCard.querySelector('h2.name').textContent || 'Ella';
+      const nameB = bCard.querySelector('h2.name').textContent || 'Él';
+      const stats = document.getElementById('stats');
+      stats.innerHTML = `
+        <div class="total">TOTAL: ${total}</div>
+        <div class="detail"><span class="name-a">${nameA}</span> ${a} <span class="pct">(${pa}%) </span> · <span class="name-b">${nameB}</span> ${b} <span class="pct">(${pb}%)</span></div>
+      `;
+    }
+
+    // Gestión de nombres editables
     setupCounter('ella', 'contador_ella');
     setupCounter('el', 'contador_el');
+
+    // Inicializar nombres editables
+    setupName('ella','Ella','nombre_ella');
+    setupName('el','Él','nombre_el');
     // Reset global con confirmación
     function resetAll(){
+      const ella = document.getElementById('ella');
+      const el = document.getElementById('el');
+      if (ella && ella._setValue) ella._setValue(0); else {
+        localStorage.setItem('contador_ella','0');
+        const c = ella?.querySelector('.count'); if (c) c.textContent = '0';
+      }
+      if (el && el._setValue) el._setValue(0); else {
+        localStorage.setItem('contador_el','0');
+        const c = el?.querySelector('.count'); if (c) c.textContent = '0';
+      }
+      history.length = 0;
+      updateTotals();
+    }
+    let _resetGuard = false;
+    const onReset = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (_resetGuard) return; // evita dobles disparos entre pointerdown/click
+      _resetGuard = true;
+      setTimeout(() => _resetGuard = false, 400);
       const ok = confirm('¿Reiniciar los dos contadores? Esta acción no se puede deshacer.');
       if(!ok) return;
-      document.getElementById('ella')._setValue(0);
-      document.getElementById('el')._setValue(0);
+      resetAll();
+    };
+    const resetBtn = document.getElementById('btn-reset');
+    resetBtn.addEventListener('pointerdown', onReset);
+    resetBtn.addEventListener('click', onReset);
+    updateTotals();
+
+    // Undo
+    document.getElementById('btn-undo').addEventListener('click', () => {
+      if (!history.length) return;
+      const last = history.pop();
+      const card = document.getElementById(last.id);
+      if (card && card._applyDelta) card._applyDelta(-last.delta, false);
+      updateTotals();
+    });
+
+    // Sonido toggle
+    const soundBtn = document.getElementById('btn-sound');
+    function renderSound(){
+      soundBtn.classList.toggle('on', soundEnabled);
+      soundBtn.setAttribute('aria-pressed', soundEnabled ? 'true' : 'false');
+      soundBtn.textContent = soundEnabled ? 'Sonido: ON' : 'Sonido: OFF';
     }
-    document.getElementById('btn-reset').addEventListener('click', resetAll);
+    renderSound();
+    soundBtn.addEventListener('click', () => {
+      soundEnabled = !soundEnabled;
+      localStorage.setItem('sound_enabled', soundEnabled ? '1' : '0');
+      try { if (soundEnabled) ensureAudio(); } catch {}
+      renderSound();
+    });
+
+    // Inicial paint de totales
+    updateTotals();
 
     // Generar e inyectar un icono (PNG 180x180) para pantalla de inicio y favicon
     (function generateIcons(){
@@ -345,6 +542,16 @@
 
     // En móviles, usar el centro al tocar
     window.addEventListener('pointerdown', (e) => updateMouseVars(e.clientX || innerWidth/2, e.clientY || innerHeight/2));
+
+    // Bloquear zoom por doble-tap en iOS manteniendo pinch-zoom
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function (e) {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, { passive: false });
   </script>
 </body>
 </html>

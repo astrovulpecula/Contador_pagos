@@ -118,7 +118,9 @@
     }
 
     @media (max-width: 680px) {
-      .grid { gap: 12px; }
+      .grid { gap: 12px; grid-template-columns: 1fr; } /* en móvil: una columna (apilados) */
+      .card { min-height: 42vh; padding: 20px; }
+    }
       .card { min-height: 42vh; padding: 20px; }
     }
       /* Toolbar y botón */
@@ -134,6 +136,7 @@
     <div class="toolbar" role="region" aria-label="Controles">
       <button class="btn reset" id="btn-reset" aria-label="Reiniciar contadores">Reset</button>
     </div>
+
     <div class="grid">
       <!-- Cuadro: Ana -->
       <div class="card" id="ella" data-person="ella" role="button" aria-pressed="false" tabindex="0" aria-label="Sumar 1 punto a Ella">
@@ -201,55 +204,136 @@
 
     // Generar e inyectar un icono (PNG 180x180) para pantalla de inicio y favicon
     (function generateIcons(){
-      const size = 180;
+      const size = 180; // iOS usa 180x180 como apple-touch-icon en la mayoría de iPhones
       const c = document.createElement('canvas');
       c.width = size; c.height = size;
       const ctx = c.getContext('2d');
 
-      // Fondo redondeado con gradiente "neón"
-      const r = 36;
-      function roundRect(x, y, w, h, rad){
+      function rrect(x, y, w, h, r){
         ctx.beginPath();
-        ctx.moveTo(x+rad, y);
-        ctx.arcTo(x+w, y, x+w, y+h, rad);
-        ctx.arcTo(x+w, y+h, x, y+h, rad);
-        ctx.arcTo(x, y+h, x, y, rad);
-        ctx.arcTo(x, y, x+w, y, rad);
+        ctx.moveTo(x+r, y);
+        ctx.arcTo(x+w, y, x+w, y+h, r);
+        ctx.arcTo(x+w, y+h, x, y+h, r);
+        ctx.arcTo(x, y+h, x, y, r);
+        ctx.arcTo(x, y, x+w, y, r);
         ctx.closePath();
       }
-      const grad = ctx.createLinearGradient(0,0,size,size);
-      grad.addColorStop(0, '#0b1226');
-      grad.addColorStop(1, '#111a38');
-      ctx.fillStyle = grad;
-      roundRect(0,0,size,size,r);
+
+      // Fondo degradado redondeado
+      const bg = ctx.createLinearGradient(0,0,size,size);
+      bg.addColorStop(0, '#0b1226');
+      bg.addColorStop(1, '#0e1733');
+      ctx.fillStyle = bg;
+      rrect(0,0,size,size,28);
       ctx.fill();
 
-      // Aro/glow
-      const glow = ctx.createRadialGradient(size*0.5, size*0.35, 10, size*0.5, size*0.35, size*0.8);
-      glow.addColorStop(0, 'rgba(255,77,157,0.35)');
-      glow.addColorStop(1, 'rgba(0,229,255,0)');
-      ctx.fillStyle = glow;
-      roundRect(0,0,size,size,r);
+      // Halo ambiental
+      const halo = ctx.createRadialGradient(size*0.5, size*0.3, 6, size*0.5, size*0.3, size*0.9);
+      halo.addColorStop(0, 'rgba(0,229,255,0.18)');
+      halo.addColorStop(1, 'rgba(0,229,255,0)');
+      ctx.fillStyle = halo;
+      rrect(0,0,size,size,28);
       ctx.fill();
 
-      // Texto A | A con brillo
-      ctx.font = 'bold 86px system-ui, -apple-system, Segoe UI, Roboto, Arial';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
+      // Panel tipo "flip"
+      const inset = 20;
+      const panelW = size - inset*2;
+      const panelH = Math.round(size*0.56);
+      const panelX = inset;
+      const panelY = Math.round((size - panelH)/2);
+      const panelR = 18;
 
-      // Sombra cian
-      ctx.shadowColor = '#00e5ff';
-      ctx.shadowBlur = 18;
-      ctx.fillStyle = '#eaf6ff';
-      ctx.fillText('É | E', size/2, size/2);
+      // Sombra del panel
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,0.45)';
+      ctx.shadowBlur = 12;
+      ctx.shadowOffsetY = 4;
+      ctx.fillStyle = '#0a0f22';
+      rrect(panelX, panelY, panelW, panelH, panelR);
+      ctx.fill();
+      ctx.restore();
 
-      // ToDataURL
+      // Gradiente del panel
+      const pg = ctx.createLinearGradient(0, panelY, 0, panelY+panelH);
+      pg.addColorStop(0, '#0f1a34');
+      pg.addColorStop(0.5, '#0b1427');
+      pg.addColorStop(1, '#08101f');
+      ctx.fillStyle = pg;
+      rrect(panelX, panelY, panelW, panelH, panelR);
+      ctx.fill();
+
+      // Bisagra central y separador vertical
+      ctx.strokeStyle = 'rgba(255,255,255,0.10)';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(panelX+10, panelY + panelH/2);
+      ctx.lineTo(panelX+panelW-10, panelY + panelH/2);
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(panelX + panelW/2, panelY + 6);
+      ctx.lineTo(panelX + panelW/2, panelY + panelH - 6);
+      ctx.stroke();
+
+      // Función para dibujar un cero con estilo 7 segmentos (sin segmento central)
+      function drawZero(x,y,w,h,color){
+        const t = Math.max(4, Math.floor(w*0.16));
+        const pad = Math.floor(t*0.6);
+        const gap = Math.max(4, Math.floor(t*0.8));
+        ctx.save();
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 8;
+        ctx.fillStyle = color;
+        // a (top)
+        ctx.fillRect(x+pad, y, w-2*pad, t);
+        // d (bottom)
+        ctx.fillRect(x+pad, y+h-t, w-2*pad, t);
+        // f (top-left)
+        ctx.fillRect(x, y+pad, t, h/2 - pad - gap/2);
+        // e (bottom-left)
+        ctx.fillRect(x, y + h/2 + gap/2, t, h/2 - pad - gap/2);
+        // b (top-right)
+        ctx.fillRect(x+w-t, y+pad, t, h/2 - pad - gap/2);
+        // c (bottom-right)
+        ctx.fillRect(x+w-t, y + h/2 + gap/2, t, h/2 - pad - gap/2);
+        ctx.restore();
+      }
+
+      // Dos dígitos 00 (rosa y cian)
+      const gapX = 8;
+      const digitW = Math.floor(panelW/2 - gapX*1.5);
+      const digitH = Math.floor(panelH - 16);
+      const digitY = panelY + (panelH - digitH)/2;
+      const leftX = panelX + gapX;
+      const rightX = panelX + panelW/2 + gapX/2;
+      drawZero(leftX,  digitY, digitW, digitH, '#ff4d9d');
+      drawZero(rightX, digitY, digitW, digitH, '#00e5ff');
+
+      // Badge + en esquina inferior derecha
+      const bx = size - 22; const by = size - 22; const br = 10;
+      const gp = ctx.createRadialGradient(bx-3, by-4, 2, bx, by, br);
+      gp.addColorStop(0, 'rgba(0,229,255,0.9)');
+      gp.addColorStop(1, 'rgba(0,229,255,0.12)');
+      ctx.fillStyle = gp;
+      ctx.beginPath(); ctx.arc(bx, by, br, 0, Math.PI*2); ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#00141a';
+      ctx.beginPath(); ctx.arc(bx, by, br, 0, Math.PI*2); ctx.stroke();
+      ctx.strokeStyle = '#00141a';
+      ctx.lineWidth = 2.2;
+      ctx.beginPath(); ctx.moveTo(bx-5, by); ctx.lineTo(bx+5, by); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(bx, by-5); ctx.lineTo(bx, by+5); ctx.stroke();
+
+      // Exportar y aplicar
       const url = c.toDataURL('image/png');
       const touch = document.getElementById('app-touch-icon');
       const fav = document.getElementById('app-favicon');
       if (touch) touch.href = url;
       if (fav) fav.href = url;
     })();
+
 
     // Fondo reactivo al puntero para un brillo "neón"
     const updateMouseVars = (x, y) => {

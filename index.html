@@ -94,13 +94,14 @@
 
     .card:active { transform: scale(.985); }
 
-    .card h2 {
+    .card h2.name {
       margin: 0 0 12px 0;
       font-size: clamp(1.1rem, 3vw, 2rem);
       font-weight: 800;
       letter-spacing: .4px;
       text-transform: uppercase;
       text-shadow: 0 0 3px var(--neon), 0 0 8px var(--neon), 0 0 18px var(--neon);
+      cursor: pointer; /* renombrar al tocar */
     }
 
     .count {
@@ -111,16 +112,26 @@
       text-shadow: 0 0 6px var(--neon), 0 0 16px var(--neon), 0 0 38px var(--neon);
     }
 
-    .hint {
-      margin-top: 12px;
-      font-size: .9rem;
-      opacity: .85;
-      text-shadow: 0 0 6px rgba(255,255,255,.15);
-    }
+    /* Toolbar, resumen e instrucciones */
+    .toolbar { display:flex; justify-content:flex-end; align-items:center; margin-bottom:12px; gap:8px; }
+    .btn { appearance:none; border:1px solid var(--border); background: linear-gradient(180deg, rgba(18,22,48,.8), rgba(10,12,28,.8)); color: var(--text); padding:10px 14px; border-radius:14px; font-weight:700; letter-spacing:.3px; cursor:pointer; transition: transform .06s ease, box-shadow .2s ease, filter .2s ease; }
+    .btn:hover { box-shadow: 0 0 14px color-mix(in oklab, var(--neon-el) 35%, transparent); }
+    .btn:active { transform: scale(.98); }
+    .btn.reset { text-transform: uppercase; }
+    .btn.toggle.on { box-shadow: 0 0 16px color-mix(in oklab, var(--neon-el) 45%, transparent); outline: 1px solid rgba(255,255,255,.14); }
+
+    .summary-card { margin: 8px 0 14px; border-radius: 16px; border: 1px solid rgba(57,255,20,0.25); background: linear-gradient(180deg, rgba(10,22,10,.35), rgba(6,16,6,.28)); box-shadow: 0 0 18px rgba(57,255,20,0.25) inset, 0 0 30px rgba(57,255,20,0.15); padding: 10px 14px; color: var(--text); }
+    .stats { text-align:center; margin: 0; }
+    .stats .total { font-weight: 900; text-transform: uppercase; letter-spacing:.6px; color: var(--neon-green); font-size: clamp(1rem, 2.2vw, 1.4rem); text-shadow: 0 0 6px rgba(57,255,20,.6), 0 0 18px rgba(57,255,20,.35), 0 0 36px rgba(57,255,20,.18); }
+    .stats .detail { margin-top: 2px; font-weight: 700; opacity:.95; font-size: clamp(.9rem, 1.6vw, 1rem); }
+    .stats .name-a { color: var(--neon-ella); text-shadow: 0 0 6px color-mix(in oklab, var(--neon-ella) 60%, transparent); }
+    .stats .name-b { color: var(--neon-el); text-shadow: 0 0 6px color-mix(in oklab, var(--neon-el) 60%, transparent); }
+    .stats .pct { opacity:.9; font-weight:800; }
+
+    .instructions { margin-top: 10px; text-align:center; opacity:.85; font-size:.95rem; }
 
     /* Bloquea el zoom por doble-tap (mantiene pinch-zoom) */
     body, .card { touch-action: manipulation; }
-    .card h2.name { cursor: default; text-decoration: none; }
 
     @media (max-width: 680px) {
       /* En móvil: flujo normal (no centrado vertical) y controles siempre visibles */
@@ -129,34 +140,7 @@
       .grid { gap: 12px; grid-template-columns: 1fr; }
       .card { min-height: 42vh; padding: 20px; }
       .toolbar { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 8px); z-index: 100; }
-    } /* en móvil: una columna (apilados) */
-      .card { min-height: 42vh; padding: 20px; }
     }
-    
-    /* Toolbar, botones y estadísticas */
-    .toolbar { display:flex; justify-content:flex-end; align-items:center; margin-bottom:12px; gap:8px; }
-    .btn { appearance:none; border:1px solid var(--border); background: linear-gradient(180deg, rgba(18,22,48,.8), rgba(10,12,28,.8)); color: var(--text); padding:10px 14px; border-radius:14px; font-weight:700; letter-spacing:.3px; cursor:pointer; transition: transform .06s ease, box-shadow .2s ease, filter .2s ease; }
-    .btn:hover { box-shadow: 0 0 14px color-mix(in oklab, var(--neon-el) 35%, transparent); }
-    .btn:active { transform: scale(.98); }
-    .btn.reset { text-transform: uppercase; }
-    .btn.toggle.on { box-shadow: 0 0 16px color-mix(in oklab, var(--neon-el) 45%, transparent); outline: 1px solid rgba(255,255,255,.14); }
-    .stats { text-align:center; font-weight:700; margin: 0; opacity:.95; text-shadow: 0 0 6px rgba(255,255,255,.12); }
-    .stats .pct { opacity:.85; font-weight:600; }
-    .summary-card { margin: 8px 0 14px; border-radius: 16px; border: 1px solid rgba(57,255,20,0.25); background: linear-gradient(180deg, rgba(10,22,10,.35), rgba(6,16,6,.28)); box-shadow: 0 0 18px rgba(57,255,20,0.25) inset, 0 0 30px rgba(57,255,20,0.15); padding: 10px 14px; color: var(--text); }
-    .stats { text-align:center; margin: 0; }
-    .stats .total { font-weight: 900; text-transform: uppercase; letter-spacing:.6px; color: var(--neon-green); font-size: clamp(1rem, 2.2vw, 1.4rem); text-shadow: 0 0 6px rgba(57,255,20,.6), 0 0 18px rgba(57,255,20,.35), 0 0 36px rgba(57,255,20,.18); }
-    .stats .detail { margin-top: 2px; font-weight: 700; opacity:.95; font-size: clamp(.9rem, 1.6vw, 1rem); }
-    .stats .name-a { color: var(--neon-ella); text-shadow: 0 0 6px color-mix(in oklab, var(--neon-ella) 60%, transparent); }
-    .stats .name-b { color: var(--neon-el); text-shadow: 0 0 6px color-mix(in oklab, var(--neon-el) 60%, transparent); }
-    .stats .pct { opacity:.9; font-weight:800; }
-    .instructions { margin-top: 10px; text-align:center; opacity:.85; font-size:.95rem; }
-    .stats .pct { opacity:.85; font-weight:600; }
-    /* Toolbar y botón */
-    .toolbar { display:flex; justify-content:flex-end; align-items:center; margin-bottom:12px; gap:8px; }
-    .btn { appearance:none; border:1px solid var(--border); background: linear-gradient(180deg, rgba(18,22,48,.8), rgba(10,12,28,.8)); color: var(--text); padding:10px 14px; border-radius:14px; font-weight:700; letter-spacing:.3px; cursor:pointer; transition: transform .06s ease, box-shadow .2s ease, filter .2s ease; }
-    .btn:hover { box-shadow: 0 0 14px color-mix(in oklab, var(--neon-el) 35%, transparent); }
-    .btn:active { transform: scale(.98); }
-    .btn.reset { text-transform: uppercase; }
   </style>
 </head>
 <body>
@@ -165,48 +149,32 @@
       <button type="button" class="btn" id="btn-undo" aria-label="Deshacer último toque">Undo</button>
       <button type="button" class="btn reset" id="btn-reset" aria-label="Reiniciar contadores">Reset</button>
       <button type="button" class="btn toggle" id="btn-sound" aria-pressed="false" aria-label="Alternar sonido/háptica">Sonido: OFF</button>
-      <button type="button" class="btn" id="btn-rename" aria-label="Renombrar nombres">Renombrar</button>
     </div>
+
     <div class="summary-card" role="region" aria-label="Resumen total">
       <div class="stats" id="stats" aria-live="polite" aria-atomic="true"></div>
     </div>
 
-    <!-- Modal para renombrar -->
-    <div class="modal-backdrop" id="rename-modal" aria-hidden="true" role="dialog" aria-modal="true">
-      <div class="modal">
-        <h3>Renombrar</h3>
-        <label>Nombre 1
-          <input type="text" id="name-ella" maxlength="24" />
-        </label>
-        <label>Nombre 2
-          <input type="text" id="name-el" maxlength="24" />
-        </label>
-        <div class="modal-actions">
-          <button type="button" class="btn" id="rename-cancel">Cancelar</button>
-          <button type="button" class="btn" id="rename-save">Guardar</button>
-        </div>
-      </div>
-    </div>
-
     <div class="grid">
-      <!-- Cuadro: Ana -->
       <div class="card" id="ella" data-person="ella" role="button" aria-pressed="false" tabindex="0" aria-label="Sumar 1 punto a Ella">
         <h2 class="name">Ella</h2>
         <div class="count" aria-live="polite" aria-atomic="true">0</div>
       </div>
 
-      <!-- Cuadro: Alvaro -->
       <div class="card" id="el" data-person="el" role="button" aria-pressed="false" tabindex="0" aria-label="Sumar 1 punto a Él">
         <h2 class="name">Él</h2>
         <div class="count" aria-live="polite" aria-atomic="true">0</div>
       </div>
     </div>
 
-    <div class="instructions">Toque = +1 · Mantener = −1 · Usa «Renombrar» para cambiar nombres.</div>
+    <div class="instructions">Toque = +1 · Mantener = −1 · Toca el nombre para renombrar.</div>
   </div>
 
   <script>
-    // Contador con persistencia en localStorage
+    // === Contadores con persistencia ===
+    const history = [];
+    function pushAction(id, delta){ history.push({ id, delta }); }
+
     function setupCounter(cardId, storageKey) {
       const card = document.getElementById(cardId);
       const countEl = card.querySelector('.count');
@@ -218,7 +186,7 @@
       function change(delta, record=true) {
         const prev = count;
         count = Math.max(0, count + delta);
-        if (count === prev) return; // no bajo de 0
+        if (count === prev) return; // no baja de 0
         localStorage.setItem(storageKey, String(count));
         render();
         if (record) pushAction(cardId, delta);
@@ -233,41 +201,26 @@
         render();
       }
 
-      // Interacción por puntero: tap = +1, pulsación larga = -1
+      // Tap = +1, pulsación larga = -1
       let pressTimer = null;
       let longPressFired = false;
 
       const onPointerDown = (e) => {
-        // Evitar seleccionar texto accidentalmente
         e.preventDefault();
         longPressFired = false;
-        pressTimer = setTimeout(() => {
-          longPressFired = true;
-          change(-1);
-        }, 500);
+        pressTimer = setTimeout(() => { longPressFired = true; change(-1); }, 500);
       };
-
-      const clearPress = () => {
-        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-      };
-
-      const onPointerUp = (e) => {
-        if (!pressTimer) return; // ya se gestionó o canceló
-        clearPress();
-        if (!longPressFired) change(+1);
-      };
+      const clearPress = () => { if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; } };
+      const onPointerUp = (e) => { if (!pressTimer) return; clearPress(); if (!longPressFired) change(+1); };
 
       card.addEventListener('pointerdown', onPointerDown);
       card.addEventListener('pointerup', onPointerUp);
       card.addEventListener('pointerleave', clearPress);
       card.addEventListener('pointercancel', clearPress);
 
-      // Accesible por teclado: Espacio/Enter = +1
+      // Teclado: Espacio/Enter = +1
       card.addEventListener('keydown', (e) => {
-        if (e.code === 'Space' || e.code === 'Enter') {
-          e.preventDefault();
-          change(+1);
-        }
+        if (e.code === 'Space' || e.code === 'Enter') { e.preventDefault(); change(+1); }
       });
 
       // Exponer helpers
@@ -276,12 +229,11 @@
       card._applyDelta = (d, record=false) => change(d, record);
     }
 
-    // Gestión de nombres editables con persistencia
+    // === Renombrar tocando el título ===
     function setupName(cardId, defaultName, storageKey){
       const card = document.getElementById(cardId);
       const nameEl = card.querySelector('h2.name');
-      let name = (localStorage.getItem(storageKey) || defaultName).trim();
-      if (!name) name = defaultName;
+      let name = (localStorage.getItem(storageKey) || defaultName).trim() || defaultName;
       nameEl.textContent = name;
       card.setAttribute('aria-label', `Sumar 1 punto a ${name}`);
 
@@ -296,50 +248,28 @@
         card.setAttribute('aria-label', `Sumar 1 punto a ${name}`);
         updateTotals();
       };
-
-      // Click/touch sobre el nombre: renombrar (sin sumar/restar)
-       openPrompt(); });
-       e.preventDefault(); openPrompt(); }, { passive: false });
-      // Bloquear propagación a la tarjeta para que no dispare timers de long-press
-      
-      
-      
+      // Evitar que tocar el nombre sume/resta
+      nameEl.addEventListener('pointerdown', (e)=> e.stopPropagation());
+      nameEl.addEventListener('pointerup',   (e)=> e.stopPropagation());
+      nameEl.addEventListener('pointercancel', (e)=> e.stopPropagation());
+      nameEl.addEventListener('click', (e)=> { e.stopPropagation(); openPrompt(); });
+      nameEl.addEventListener('touchend', (e)=> { e.stopPropagation(); e.preventDefault(); openPrompt(); }, { passive:false });
     }
 
-    // Utilidades: historial (Undo), sonido/háptica y totales (Undo), sonido/háptica y totales
-    const history = [];
-    function pushAction(id, delta){ history.push({ id, delta }); }
-
-    // Sonido/Háptica
+    // === Sonido / háptica ===
     let soundEnabled = localStorage.getItem('sound_enabled') === '1';
     let _ac = null;
-    function ensureAudio(){
-      if (!_ac) _ac = new (window.AudioContext || window.webkitAudioContext)();
-      if (_ac.state === 'suspended') _ac.resume();
-    }
+    function ensureAudio(){ if (!_ac) _ac = new (window.AudioContext||window.webkitAudioContext)(); if (_ac.state==='suspended') _ac.resume(); }
     function beep(type='up'){
-      try {
-        ensureAudio();
-        const ctx = _ac;
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        o.type = 'sine';
-        o.frequency.value = type==='up' ? 880 : 440;
-        g.gain.value = 0.0001;
-        o.connect(g); g.connect(ctx.destination);
-        const now = ctx.currentTime;
-        g.gain.exponentialRampToValueAtTime(0.08, now + 0.01);
-        g.gain.exponentialRampToValueAtTime(0.00001, now + 0.12);
-        o.start(now);
-        o.stop(now + 0.14);
-      } catch {}
+      try{ ensureAudio(); const ctx=_ac; const o=ctx.createOscillator(); const g=ctx.createGain();
+        o.type='sine'; o.frequency.value = type==='up'?880:440; g.gain.value=0.0001; o.connect(g); g.connect(ctx.destination);
+        const now=ctx.currentTime; g.gain.exponentialRampToValueAtTime(0.08, now+0.01); g.gain.exponentialRampToValueAtTime(0.00001, now+0.12);
+        o.start(now); o.stop(now+0.14);
+      }catch{}
     }
-    function feedback(delta){
-      if (soundEnabled) beep(delta>0 ? 'up' : 'down');
-      if (navigator.vibrate) navigator.vibrate(10);
-    }
+    function feedback(delta){ if (soundEnabled) beep(delta>0?'up':'down'); if (navigator.vibrate) navigator.vibrate(10); }
 
-    // Totales y porcentajes
+    // === Totales ===
     function updateTotals(){
       const aCard = document.getElementById('ella');
       const bCard = document.getElementById('el');
@@ -353,270 +283,69 @@
       const stats = document.getElementById('stats');
       stats.innerHTML = `
         <div class="total">TOTAL: ${total}</div>
-        <div class="detail"><span class="name-a">${nameA}</span> ${a} <span class="pct">(${pa}%) </span> · <span class="name-b">${nameB}</span> ${b} <span class="pct">(${pb}%)</span></div>
+        <div class="detail"><span class="name-a">${nameA}</span> ${a} <span class="pct">(${pa}%)</span> · <span class="name-b">${nameB}</span> ${b} <span class="pct">(${pb}%)</span></div>
       `;
     }
 
-    // Gestión de nombres editables
+    // === Inicializar ===
     setupCounter('ella', 'contador_ella');
     setupCounter('el', 'contador_el');
-
-    // Inicializar nombres editables
     setupName('ella','Ella','nombre_ella');
     setupName('el','Él','nombre_el');
-    // Reset global con confirmación
+
+    // Reset / Undo / Sonido
     function resetAll(){
-      const ella = document.getElementById('ella');
-      const el = document.getElementById('el');
-      if (ella && ella._setValue) ella._setValue(0); else {
-        localStorage.setItem('contador_ella','0');
-        const c = ella?.querySelector('.count'); if (c) c.textContent = '0';
-      }
-      if (el && el._setValue) el._setValue(0); else {
-        localStorage.setItem('contador_el','0');
-        const c = el?.querySelector('.count'); if (c) c.textContent = '0';
-      }
+      const a=document.getElementById('ella');
+      const b=document.getElementById('el');
+      if (a && a._setValue) a._setValue(0);
+      if (b && b._setValue) b._setValue(0);
       history.length = 0;
       updateTotals();
     }
-    let _resetGuard = false;
-    const onReset = (e) => {
+    const resetBtn = document.getElementById('btn-reset');
+    const handleReset = (e) => {
       e.preventDefault();
       e.stopPropagation();
-      if (_resetGuard) return; // evita dobles disparos entre pointerdown/click
-      _resetGuard = true;
-      setTimeout(() => _resetGuard = false, 400);
-      const ok = confirm('¿Reiniciar los dos contadores? Esta acción no se puede deshacer.');
-      if(!ok) return;
+      if (!confirm('¿Reiniciar los dos contadores? Esta acción no se puede deshacer.')) return;
       resetAll();
     };
-    const resetBtn = document.getElementById('btn-reset');
-    resetBtn.addEventListener('pointerdown', onReset);
-    resetBtn.addEventListener('click', onReset);
-    updateTotals();
+    // Compatibilidad: pointer (iOS/Android) + click (desktop)
+    resetBtn.addEventListener('pointerup', handleReset);
+    resetBtn.addEventListener('click', handleReset);
 
-    // Undo
-    document.getElementById('btn-undo').addEventListener('click', () => {
-      if (!history.length) return;
-      const last = history.pop();
-      const card = document.getElementById(last.id);
-      if (card && card._applyDelta) card._applyDelta(-last.delta, false);
-      updateTotals();
-    });
-
-    // Sonido toggle
-    const soundBtn = document.getElementById('btn-sound');
-    function renderSound(){
-      soundBtn.classList.toggle('on', soundEnabled);
-      soundBtn.setAttribute('aria-pressed', soundEnabled ? 'true' : 'false');
-      soundBtn.textContent = soundEnabled ? 'Sonido: ON' : 'Sonido: OFF';
-    }
+    const soundBtn=document.getElementById('btn-sound');('btn-sound');
+    function renderSound(){ soundBtn.classList.toggle('on', soundEnabled); soundBtn.setAttribute('aria-pressed', soundEnabled?'true':'false'); soundBtn.textContent = soundEnabled? 'Sonido: ON' : 'Sonido: OFF'; }
     renderSound();
-    soundBtn.addEventListener('click', () => {
-      soundEnabled = !soundEnabled;
-      localStorage.setItem('sound_enabled', soundEnabled ? '1' : '0');
-      try { if (soundEnabled) ensureAudio(); } catch {}
-      renderSound();
-    });
+    soundBtn.addEventListener('click', ()=>{ soundEnabled=!soundEnabled; localStorage.setItem('sound_enabled', soundEnabled?'1':'0'); try{ if(soundEnabled) ensureAudio(); }catch{} renderSound(); });
 
-    // Diálogo de renombrado (modal)
-    const renameBtn = document.getElementById('btn-rename');
-    const modal = document.getElementById('rename-modal');
-    const inElla = document.getElementById('name-ella');
-    const inEl = document.getElementById('name-el');
-    const renameCancel = document.getElementById('rename-cancel');
-    const renameSave = document.getElementById('rename-save');
-
-    function openRename(){
-      const a = document.getElementById('ella');
-      const b = document.getElementById('el');
-      inElla.value = (a.querySelector('h2.name').textContent || 'Ella');
-      inEl.value = (b.querySelector('h2.name').textContent || 'Él');
-      modal.classList.add('open');
-      setTimeout(()=> inElla.focus(), 0);
-    }
-    function closeRename(){ modal.classList.remove('open'); }
-
-    renameBtn.addEventListener('click', openRename);
-    renameCancel.addEventListener('click', closeRename);
-    modal.addEventListener('click', (e)=>{ if(e.target === modal) closeRename(); });
-    renameSave.addEventListener('click', ()=>{
-      setCardNameById('ella', inElla.value);
-      setCardNameById('el', inEl.value);
-      closeRename();
-    });
-    [inElla, inEl].forEach(el => el.addEventListener('keydown', (e)=>{ if(e.key==='Enter') renameSave.click(); }));
-    document.addEventListener('keydown', (e)=>{ if (modal.classList.contains('open') && e.key === 'Escape') closeRename(); });
-
-    // Inicial paint de totales
+    // Primer pintado de totales
     updateTotals();
 
-    // Helper para cambiar nombres desde el diálogo
-    function setCardNameById(cardId, newName){
-      const storageKey = (cardId === 'ella') ? 'nombre_ella' : 'nombre_el';
-      const card = document.getElementById(cardId);
-      const nameEl = card.querySelector('h2.name');
-      const nn = (newName || '').trim().slice(0,24);
-      if (!nn) return;
-      nameEl.textContent = nn;
-      localStorage.setItem(storageKey, nn);
-      card.setAttribute('aria-label', `Sumar 1 punto a ${nn}`);
-      updateTotals();
-    }
-
-    // Generar e inyectar un icono (PNG 180x180) para pantalla de inicio y favicon
+    // === Icono flip-counter neón (apple-touch-icon + favicon) ===
     (function generateIcons(){
-      const size = 180; // iOS usa 180x180 como apple-touch-icon en la mayoría de iPhones
-      const c = document.createElement('canvas');
-      c.width = size; c.height = size;
-      const ctx = c.getContext('2d');
-
-      function rrect(x, y, w, h, r){
-        ctx.beginPath();
-        ctx.moveTo(x+r, y);
-        ctx.arcTo(x+w, y, x+w, y+h, r);
-        ctx.arcTo(x+w, y+h, x, y+h, r);
-        ctx.arcTo(x, y+h, x, y, r);
-        ctx.arcTo(x, y, x+w, y, r);
-        ctx.closePath();
-      }
-
-      // Fondo degradado redondeado
-      const bg = ctx.createLinearGradient(0,0,size,size);
-      bg.addColorStop(0, '#0b1226');
-      bg.addColorStop(1, '#0e1733');
-      ctx.fillStyle = bg;
-      rrect(0,0,size,size,28);
-      ctx.fill();
-
-      // Halo ambiental
-      const halo = ctx.createRadialGradient(size*0.5, size*0.3, 6, size*0.5, size*0.3, size*0.9);
-      halo.addColorStop(0, 'rgba(0,229,255,0.18)');
-      halo.addColorStop(1, 'rgba(0,229,255,0)');
-      ctx.fillStyle = halo;
-      rrect(0,0,size,size,28);
-      ctx.fill();
-
-      // Panel tipo "flip"
-      const inset = 20;
-      const panelW = size - inset*2;
-      const panelH = Math.round(size*0.56);
-      const panelX = inset;
-      const panelY = Math.round((size - panelH)/2);
-      const panelR = 18;
-
-      // Sombra del panel
-      ctx.save();
-      ctx.shadowColor = 'rgba(0,0,0,0.45)';
-      ctx.shadowBlur = 12;
-      ctx.shadowOffsetY = 4;
-      ctx.fillStyle = '#0a0f22';
-      rrect(panelX, panelY, panelW, panelH, panelR);
-      ctx.fill();
-      ctx.restore();
-
-      // Gradiente del panel
-      const pg = ctx.createLinearGradient(0, panelY, 0, panelY+panelH);
-      pg.addColorStop(0, '#0f1a34');
-      pg.addColorStop(0.5, '#0b1427');
-      pg.addColorStop(1, '#08101f');
-      ctx.fillStyle = pg;
-      rrect(panelX, panelY, panelW, panelH, panelR);
-      ctx.fill();
-
-      // Bisagra central y separador vertical
-      ctx.strokeStyle = 'rgba(255,255,255,0.10)';
-      ctx.lineWidth = 1.8;
-      ctx.beginPath();
-      ctx.moveTo(panelX+10, panelY + panelH/2);
-      ctx.lineTo(panelX+panelW-10, panelY + panelH/2);
-      ctx.stroke();
-
-      ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-      ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      ctx.moveTo(panelX + panelW/2, panelY + 6);
-      ctx.lineTo(panelX + panelW/2, panelY + panelH - 6);
-      ctx.stroke();
-
-      // Función para dibujar un cero con estilo 7 segmentos (sin segmento central)
-      function drawZero(x,y,w,h,color){
-        const t = Math.max(4, Math.floor(w*0.16));
-        const pad = Math.floor(t*0.6);
-        const gap = Math.max(4, Math.floor(t*0.8));
-        ctx.save();
-        ctx.shadowColor = color;
-        ctx.shadowBlur = 8;
-        ctx.fillStyle = color;
-        // a (top)
-        ctx.fillRect(x+pad, y, w-2*pad, t);
-        // d (bottom)
-        ctx.fillRect(x+pad, y+h-t, w-2*pad, t);
-        // f (top-left)
-        ctx.fillRect(x, y+pad, t, h/2 - pad - gap/2);
-        // e (bottom-left)
-        ctx.fillRect(x, y + h/2 + gap/2, t, h/2 - pad - gap/2);
-        // b (top-right)
-        ctx.fillRect(x+w-t, y+pad, t, h/2 - pad - gap/2);
-        // c (bottom-right)
-        ctx.fillRect(x+w-t, y + h/2 + gap/2, t, h/2 - pad - gap/2);
-        ctx.restore();
-      }
-
-      // Dos dígitos 00 (rosa y cian)
-      const gapX = 8;
-      const digitW = Math.floor(panelW/2 - gapX*1.5);
-      const digitH = Math.floor(panelH - 16);
-      const digitY = panelY + (panelH - digitH)/2;
-      const leftX = panelX + gapX;
-      const rightX = panelX + panelW/2 + gapX/2;
-      drawZero(leftX,  digitY, digitW, digitH, '#ff4d9d');
-      drawZero(rightX, digitY, digitW, digitH, '#00e5ff');
-
-      // Badge + en esquina inferior derecha
-      const bx = size - 22; const by = size - 22; const br = 10;
-      const gp = ctx.createRadialGradient(bx-3, by-4, 2, bx, by, br);
-      gp.addColorStop(0, 'rgba(0,229,255,0.9)');
-      gp.addColorStop(1, 'rgba(0,229,255,0.12)');
-      ctx.fillStyle = gp;
-      ctx.beginPath(); ctx.arc(bx, by, br, 0, Math.PI*2); ctx.fill();
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = '#00141a';
-      ctx.beginPath(); ctx.arc(bx, by, br, 0, Math.PI*2); ctx.stroke();
-      ctx.strokeStyle = '#00141a';
-      ctx.lineWidth = 2.2;
-      ctx.beginPath(); ctx.moveTo(bx-5, by); ctx.lineTo(bx+5, by); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(bx, by-5); ctx.lineTo(bx, by+5); ctx.stroke();
-
-      // Exportar y aplicar
-      const url = c.toDataURL('image/png');
-      const touch = document.getElementById('app-touch-icon');
-      const fav = document.getElementById('app-favicon');
-      if (touch) touch.href = url;
-      if (fav) fav.href = url;
+      const size = 180; // iOS
+      const c = document.createElement('canvas'); c.width=size; c.height=size; const ctx=c.getContext('2d');
+      function rrect(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+      const bg=ctx.createLinearGradient(0,0,size,size); bg.addColorStop(0,'#0b1226'); bg.addColorStop(1,'#0e1733'); ctx.fillStyle=bg; rrect(0,0,size,size,28); ctx.fill();
+      const halo=ctx.createRadialGradient(size*.5,size*.3,6,size*.5,size*.3,size*.9); halo.addColorStop(0,'rgba(0,229,255,0.18)'); halo.addColorStop(1,'rgba(0,229,255,0)'); ctx.fillStyle=halo; rrect(0,0,size,size,28); ctx.fill();
+      const inset=20; const panelW=size-inset*2; const panelH=Math.round(size*.56); const panelX=inset; const panelY=Math.round((size-panelH)/2); const panelR=18;
+      ctx.save(); ctx.shadowColor='rgba(0,0,0,0.45)'; ctx.shadowBlur=12; ctx.shadowOffsetY=4; ctx.fillStyle='#0a0f22'; rrect(panelX,panelY,panelW,panelH,panelR); ctx.fill(); ctx.restore();
+      const pg=ctx.createLinearGradient(0,panelY,0,panelY+panelH); pg.addColorStop(0,'#0f1a34'); pg.addColorStop(0.5,'#0b1427'); pg.addColorStop(1,'#08101f'); ctx.fillStyle=pg; rrect(panelX,panelY,panelW,panelH,panelR); ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,0.10)'; ctx.lineWidth=1.8; ctx.beginPath(); ctx.moveTo(panelX+10,panelY+panelH/2); ctx.lineTo(panelX+panelW-10,panelY+panelH/2); ctx.stroke();
+      ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.lineWidth=1.2; ctx.beginPath(); ctx.moveTo(panelX+panelW/2,panelY+6); ctx.lineTo(panelX+panelW/2,panelY+panelH-6); ctx.stroke();
+      function drawZero(x,y,w,h,color){ const t=Math.max(4,Math.floor(w*.16)); const pad=Math.floor(t*.6); const gap=Math.max(4,Math.floor(t*.8)); ctx.save(); ctx.shadowColor=color; ctx.shadowBlur=8; ctx.fillStyle=color; ctx.fillRect(x+pad,y,w-2*pad,t); ctx.fillRect(x+pad,y+h-t,w-2*pad,t); ctx.fillRect(x,y+pad,t,h/2-pad-gap/2); ctx.fillRect(x,y+h/2+gap/2,t,h/2-pad-gap/2); ctx.fillRect(x+w-t,y+pad,t,h/2-pad-gap/2); ctx.fillRect(x+w-t,y+h/2+gap/2,t,h/2-pad-gap/2); ctx.restore(); }
+      const gapX=8; const digitW=Math.floor(panelW/2-gapX*1.5); const digitH=Math.floor(panelH-16); const digitY=panelY+(panelH-digitH)/2; const leftX=panelX+gapX; const rightX=panelX+panelW/2+gapX/2; drawZero(leftX,digitY,digitW,digitH,'#ff4d9d'); drawZero(rightX,digitY,digitW,digitH,'#00e5ff');
+      const bx=size-22, by=size-22, br=10; const gp=ctx.createRadialGradient(bx-3,by-4,2,bx,by,br); gp.addColorStop(0,'rgba(0,229,255,0.9)'); gp.addColorStop(1,'rgba(0,229,255,0.12)'); ctx.fillStyle=gp; ctx.beginPath(); ctx.arc(bx,by,br,0,Math.PI*2); ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle='#00141a'; ctx.beginPath(); ctx.arc(bx,by,br,0,Math.PI*2); ctx.stroke(); ctx.strokeStyle='#00141a'; ctx.lineWidth=2.2; ctx.beginPath(); ctx.moveTo(bx-5,by); ctx.lineTo(bx+5,by); ctx.stroke(); ctx.beginPath(); ctx.moveTo(bx,by-5); ctx.lineTo(bx,by+5); ctx.stroke();
+      const url=c.toDataURL('image/png'); document.getElementById('app-touch-icon').href=url; document.getElementById('app-favicon').href=url;
     })();
 
-
     // Fondo reactivo al puntero para un brillo "neón"
-    const updateMouseVars = (x, y) => {
-      document.documentElement.style.setProperty('--mx', x + 'px');
-      document.documentElement.style.setProperty('--my', y + 'px');
-    };
+    const updateMouseVars=(x,y)=>{ document.documentElement.style.setProperty('--mx', x+'px'); document.documentElement.style.setProperty('--my', y+'px'); };
+    window.addEventListener('pointermove', (e)=>updateMouseVars(e.clientX,e.clientY));
+    window.addEventListener('pointerdown', (e)=>updateMouseVars(e.clientX||innerWidth/2, e.clientY||innerHeight/2));
 
-    window.addEventListener('pointermove', (e) => updateMouseVars(e.clientX, e.clientY));
-
-    // En móviles, usar el centro al tocar
-    window.addEventListener('pointerdown', (e) => updateMouseVars(e.clientX || innerWidth/2, e.clientY || innerHeight/2));
-
-    // Bloquear zoom por doble-tap en iOS manteniendo pinch-zoom
-    let lastTouchEnd = 0;
-    document.addEventListener('touchend', function (e) {
-      const now = Date.now();
-      if (now - lastTouchEnd <= 300) {
-        e.preventDefault();
-      }
-      lastTouchEnd = now;
-    }, { passive: false });
+    // Bloquear zoom por doble-tap manteniendo pinch-zoom
+    let lastTouchEnd=0; document.addEventListener('touchend', (e)=>{ const now=Date.now(); if(now-lastTouchEnd<=300){ e.preventDefault(); } lastTouchEnd=now; }, {passive:false});
   </script>
 </body>
 </html>

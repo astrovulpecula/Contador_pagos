@@ -303,14 +303,17 @@
       updateTotals();
     }
     const resetBtn = document.getElementById('btn-reset');
+    let __resetLock = false;
     const handleReset = (e) => {
       e.preventDefault();
       e.stopPropagation();
-      if (!confirm('¿Reiniciar los dos contadores? Esta acción no se puede deshacer.')) return;
-      resetAll();
+      if (__resetLock) return; // evita doble confirm por pointerup+click
+      __resetLock = true;
+      const ok = confirm('¿Reiniciar los dos contadores? Esta acción no se puede deshacer.');
+      if (ok) resetAll();
+      setTimeout(() => { __resetLock = false; }, 350);
     };
-    // Compatibilidad: pointer (iOS/Android) + click (desktop)
-    resetBtn.addEventListener('pointerup', handleReset);
+    resetBtn.addEventListener('pointerup', handleReset, { passive: false });
     resetBtn.addEventListener('click', handleReset);
 
     const undoBtn = document.getElementById('btn-undo');

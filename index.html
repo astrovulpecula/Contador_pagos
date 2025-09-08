@@ -114,7 +114,7 @@
 
     /* Toolbar, resumen e instrucciones */
     .toolbar { display:flex; justify-content:flex-end; align-items:center; margin-bottom:12px; gap:8px; }
-    .btn { appearance:none; border:1px solid var(--border); background: linear-gradient(180deg, rgba(18,22,48,.8), rgba(10,12,28,.8)); color: var(--text); padding:10px 14px; border-radius:14px; font-weight:700; letter-spacing:.3px; cursor:pointer; transition: transform .06s ease, box-shadow .2s ease, filter .2s ease; }
+    .btn { appearance:none; border:1px solid var(--border); background: linear-gradient(180deg, rgba(18,22,48,.8), rgba(10,12,28,.8)); color: var(--text); padding:10px 14px; border-radius:14px; font-weight:700; letter-spacing:.3px; cursor:pointer; transition: transform .06s ease, box-shadow .2s ease, filter .2s ease; touch-action: manipulation; }
     .btn:hover { box-shadow: 0 0 14px color-mix(in oklab, var(--neon-el) 35%, transparent); }
     .btn:active { transform: scale(.98); }
     .btn.reset { text-transform: uppercase; }
@@ -313,7 +313,20 @@
     resetBtn.addEventListener('pointerup', handleReset);
     resetBtn.addEventListener('click', handleReset);
 
-    const soundBtn=document.getElementById('btn-sound');('btn-sound');
+    const undoBtn = document.getElementById('btn-undo');
+    const handleUndo = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!history.length) return;
+      const last = history.pop();
+      const card = document.getElementById(last.id);
+      if (card && card._applyDelta) card._applyDelta(-last.delta, false);
+      updateTotals();
+    };
+    undoBtn.addEventListener('pointerup', handleUndo);
+    undoBtn.addEventListener('click', handleUndo);
+
+    const soundBtn=document.getElementById('btn-sound');
     function renderSound(){ soundBtn.classList.toggle('on', soundEnabled); soundBtn.setAttribute('aria-pressed', soundEnabled?'true':'false'); soundBtn.textContent = soundEnabled? 'Sonido: ON' : 'Sonido: OFF'; }
     renderSound();
     soundBtn.addEventListener('click', ()=>{ soundEnabled=!soundEnabled; localStorage.setItem('sound_enabled', soundEnabled?'1':'0'); try{ if(soundEnabled) ensureAudio(); }catch{} renderSound(); });

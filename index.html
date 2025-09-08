@@ -118,10 +118,9 @@
       text-shadow: 0 0 6px rgba(255,255,255,.15);
     }
 
-    /* Bloquea el zoom por doble-tap (mantiene pinch-zoom) y estilo de nombre editable */
+    /* Bloquea el zoom por doble-tap (mantiene pinch-zoom) */
     body, .card { touch-action: manipulation; }
-    .card h2.name { cursor: pointer; }
-    .card h2.name:hover { text-decoration: underline dotted; }
+    .card h2.name { cursor: default; text-decoration: none; }
 
     @media (max-width: 680px) {
       /* En móvil: flujo normal (no centrado vertical) y controles siempre visibles */
@@ -166,9 +165,27 @@
       <button type="button" class="btn" id="btn-undo" aria-label="Deshacer último toque">Undo</button>
       <button type="button" class="btn reset" id="btn-reset" aria-label="Reiniciar contadores">Reset</button>
       <button type="button" class="btn toggle" id="btn-sound" aria-pressed="false" aria-label="Alternar sonido/háptica">Sonido: OFF</button>
+      <button type="button" class="btn" id="btn-rename" aria-label="Renombrar nombres">Renombrar</button>
     </div>
     <div class="summary-card" role="region" aria-label="Resumen total">
       <div class="stats" id="stats" aria-live="polite" aria-atomic="true"></div>
+    </div>
+
+    <!-- Modal para renombrar -->
+    <div class="modal-backdrop" id="rename-modal" aria-hidden="true" role="dialog" aria-modal="true">
+      <div class="modal">
+        <h3>Renombrar</h3>
+        <label>Nombre 1
+          <input type="text" id="name-ella" maxlength="24" />
+        </label>
+        <label>Nombre 2
+          <input type="text" id="name-el" maxlength="24" />
+        </label>
+        <div class="modal-actions">
+          <button type="button" class="btn" id="rename-cancel">Cancelar</button>
+          <button type="button" class="btn" id="rename-save">Guardar</button>
+        </div>
+      </div>
     </div>
 
     <div class="grid">
@@ -185,7 +202,7 @@
       </div>
     </div>
 
-    <div class="instructions">Toque = +1 · Mantener = −1 · Toca el nombre para renombrar.</div>
+    <div class="instructions">Toque = +1 · Mantener = −1 · Usa «Renombrar» para cambiar nombres.</div>
   </div>
 
   <script>
@@ -281,12 +298,12 @@
       };
 
       // Click/touch sobre el nombre: renombrar (sin sumar/restar)
-      nameEl.addEventListener('click', (e) => { e.stopPropagation(); openPrompt(); });
-      nameEl.addEventListener('touchend', (e) => { e.stopPropagation(); e.preventDefault(); openPrompt(); }, { passive: false });
+       openPrompt(); });
+       e.preventDefault(); openPrompt(); }, { passive: false });
       // Bloquear propagación a la tarjeta para que no dispare timers de long-press
-      nameEl.addEventListener('pointerdown', (e)=> e.stopPropagation());
-      nameEl.addEventListener('pointerup', (e)=> e.stopPropagation());
-      nameEl.addEventListener('pointercancel', (e)=> e.stopPropagation());
+      
+      
+      
     }
 
     // Utilidades: historial (Undo), sonido/háptica y totales (Undo), sonido/háptica y totales
@@ -402,8 +419,50 @@
       renderSound();
     });
 
+    // Diálogo de renombrado (modal)
+    const renameBtn = document.getElementById('btn-rename');
+    const modal = document.getElementById('rename-modal');
+    const inElla = document.getElementById('name-ella');
+    const inEl = document.getElementById('name-el');
+    const renameCancel = document.getElementById('rename-cancel');
+    const renameSave = document.getElementById('rename-save');
+
+    function openRename(){
+      const a = document.getElementById('ella');
+      const b = document.getElementById('el');
+      inElla.value = (a.querySelector('h2.name').textContent || 'Ella');
+      inEl.value = (b.querySelector('h2.name').textContent || 'Él');
+      modal.classList.add('open');
+      setTimeout(()=> inElla.focus(), 0);
+    }
+    function closeRename(){ modal.classList.remove('open'); }
+
+    renameBtn.addEventListener('click', openRename);
+    renameCancel.addEventListener('click', closeRename);
+    modal.addEventListener('click', (e)=>{ if(e.target === modal) closeRename(); });
+    renameSave.addEventListener('click', ()=>{
+      setCardNameById('ella', inElla.value);
+      setCardNameById('el', inEl.value);
+      closeRename();
+    });
+    [inElla, inEl].forEach(el => el.addEventListener('keydown', (e)=>{ if(e.key==='Enter') renameSave.click(); }));
+    document.addEventListener('keydown', (e)=>{ if (modal.classList.contains('open') && e.key === 'Escape') closeRename(); });
+
     // Inicial paint de totales
     updateTotals();
+
+    // Helper para cambiar nombres desde el diálogo
+    function setCardNameById(cardId, newName){
+      const storageKey = (cardId === 'ella') ? 'nombre_ella' : 'nombre_el';
+      const card = document.getElementById(cardId);
+      const nameEl = card.querySelector('h2.name');
+      const nn = (newName || '').trim().slice(0,24);
+      if (!nn) return;
+      nameEl.textContent = nn;
+      localStorage.setItem(storageKey, nn);
+      card.setAttribute('aria-label', `Sumar 1 punto a ${nn}`);
+      updateTotals();
+    }
 
     // Generar e inyectar un icono (PNG 180x180) para pantalla de inicio y favicon
     (function generateIcons(){

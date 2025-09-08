@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#0b1226" />
+  <link id="app-touch-icon" rel="apple-touch-icon" sizes="180x180" href="" />
+  <link id="app-favicon" rel="icon" type="image/png" href="" />
+  <title>Contador: Ella y Él</title>
+  <style>
+    :root {
+      --text: #eaf6ff;
+      --neon-ella: #ff4d9d;
+      --neon-el: #00e5ff;
+      --panel: rgba(8, 10, 26, 0.6);
+      --border: rgba(255, 255, 255, 0.08);
+      /* posición del foco para el fondo (se actualiza con el puntero) */
+      --mx: 50vw;
+      --my: 50vh;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(60vmax 60vmax at var(--mx) var(--my), #0b1226 0%, #090f20 40%, #060b18 65%, #030712 100%);
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .wrapper { width: min(1024px, 96vw); }
+
+    /* Dos cuadros horizontales */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr; /* dos columnas (horizontal) */
+      gap: 18px;
+    }
+
+    .card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 45vh; /* alto generoso para que sean "cuadros" */
+      padding: 28px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(12, 14, 32, 0.72), rgba(6, 8, 24, 0.68));
+      border: 1.5px solid var(--border);
+      backdrop-filter: blur(8px);
+      user-select: none;
+      cursor: pointer;
+      transition: transform .08s ease, background .25s ease, box-shadow .25s ease, filter .25s ease;
+      outline: none;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    /* Color neón por persona */
+    .card[data-person="ella"] { --neon: var(--neon-ella); }
+    .card[data-person="el"] { --neon: var(--neon-el); }
+
+    /* Aro brillante en el borde */
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      background: radial-gradient(140% 140% at 50% 0%, color-mix(in oklab, var(--neon) 30%, transparent), transparent 60%);
+      mix-blend-mode: screen;
+      opacity: .7;
+      z-index: -1;
+    }
+
+    .card:hover {
+      transform: translateY(-2px) scale(1.01);
+      background: linear-gradient(180deg, rgba(16, 18, 44, 0.78), rgba(8, 10, 28, 0.74));
+      box-shadow: 0 0 20px var(--neon), 0 0 60px color-mix(in oklab, var(--neon) 30%, transparent);
+      filter: drop-shadow(0 0 24px var(--neon));
+    }
+
+    .card:active { transform: scale(.985); }
+
+    .card h2 {
+      margin: 0 0 12px 0;
+      font-size: clamp(1.1rem, 3vw, 2rem);
+      font-weight: 800;
+      letter-spacing: .4px;
+      text-transform: uppercase;
+      text-shadow: 0 0 3px var(--neon), 0 0 8px var(--neon), 0 0 18px var(--neon);
+    }
+
+    .count {
+      font-weight: 900;
+      font-size: clamp(3.5rem, 11vw, 9rem);
+      line-height: 1;
+      letter-spacing: -1px;
+      text-shadow: 0 0 6px var(--neon), 0 0 16px var(--neon), 0 0 38px var(--neon);
+    }
+
+    .hint {
+      margin-top: 12px;
+      font-size: .9rem;
+      opacity: .85;
+      text-shadow: 0 0 6px rgba(255,255,255,.15);
+    }
+
+    @media (max-width: 680px) {
+      .grid { gap: 12px; }
+      .card { min-height: 42vh; padding: 20px; }
+    }
+      /* Toolbar y botón */
+    .toolbar { display:flex; justify-content:flex-end; align-items:center; margin-bottom:12px; gap:8px; }
+    .btn { appearance:none; border:1px solid var(--border); background: linear-gradient(180deg, rgba(18,22,48,.8), rgba(10,12,28,.8)); color: var(--text); padding:10px 14px; border-radius:14px; font-weight:700; letter-spacing:.3px; cursor:pointer; transition: transform .06s ease, box-shadow .2s ease, filter .2s ease; }
+    .btn:hover { box-shadow: 0 0 14px color-mix(in oklab, var(--neon-el) 35%, transparent); }
+    .btn:active { transform: scale(.98); }
+    .btn.reset { text-transform: uppercase; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="toolbar" role="region" aria-label="Controles">
+      <button class="btn reset" id="btn-reset" aria-label="Reiniciar contadores">Reset</button>
+    </div>
+    <div class="grid">
+      <!-- Cuadro: Ana -->
+      <div class="card" id="ella" data-person="ella" role="button" aria-pressed="false" tabindex="0" aria-label="Sumar 1 punto a Ella">
+        <h2>Ella</h2>
+        <div class="count" aria-live="polite" aria-atomic="true">0</div>
+        <div class="hint">Toca o pulsa Espacio/Enter</div>
+      </div>
+
+      <!-- Cuadro: Alvaro -->
+      <div class="card" id="el" data-person="el" role="button" aria-pressed="false" tabindex="0" aria-label="Sumar 1 punto a Él">
+        <h2>Él</h2>
+        <div class="count" aria-live="polite" aria-atomic="true">0</div>
+        <div class="hint">Toca o pulsa Espacio/Enter</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Contador con persistencia en localStorage
+    function setupCounter(cardId, storageKey) {
+      const card = document.getElementById(cardId);
+      const countEl = card.querySelector('.count');
+      let count = parseInt(localStorage.getItem(storageKey) || '0', 10);
+      countEl.textContent = count;
+
+      function increment() {
+        count += 1;
+        countEl.textContent = count;
+        localStorage.setItem(storageKey, String(count));
+      }
+
+      card.addEventListener('click', increment);
+
+      card.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' || e.code === 'Enter') {
+          e.preventDefault();
+          increment();
+        }
+      });
+    }
+
+    // Inicializar contadores
+    setupCounter('ella', 'contador_ella');
+    setupCounter('el', 'contador_el');
+
+    // Función para establecer un valor específico y persistirlo
+    function setCounter(cardId, storageKey, value){
+      const card = document.getElementById(cardId);
+      const countEl = card.querySelector('.count');
+      localStorage.setItem(storageKey, String(value));
+      countEl.textContent = value;
+    }
+
+    // Reset global con confirmación
+    function resetAll(){
+      const ok = confirm('¿Reiniciar los dos contadores? Esta acción no se puede deshacer.');
+      if(!ok) return;
+      setCounter('ella','contador_ella',0);
+      setCounter('el','contador_el',0);
+    }
+    document.getElementById('btn-reset').addEventListener('click', resetAll);
+
+    // Generar e inyectar un icono (PNG 180x180) para pantalla de inicio y favicon
+    (function generateIcons(){
+      const size = 180;
+      const c = document.createElement('canvas');
+      c.width = size; c.height = size;
+      const ctx = c.getContext('2d');
+
+      // Fondo redondeado con gradiente "neón"
+      const r = 36;
+      function roundRect(x, y, w, h, rad){
+        ctx.beginPath();
+        ctx.moveTo(x+rad, y);
+        ctx.arcTo(x+w, y, x+w, y+h, rad);
+        ctx.arcTo(x+w, y+h, x, y+h, rad);
+        ctx.arcTo(x, y+h, x, y, rad);
+        ctx.arcTo(x, y, x+w, y, rad);
+        ctx.closePath();
+      }
+      const grad = ctx.createLinearGradient(0,0,size,size);
+      grad.addColorStop(0, '#0b1226');
+      grad.addColorStop(1, '#111a38');
+      ctx.fillStyle = grad;
+      roundRect(0,0,size,size,r);
+      ctx.fill();
+
+      // Aro/glow
+      const glow = ctx.createRadialGradient(size*0.5, size*0.35, 10, size*0.5, size*0.35, size*0.8);
+      glow.addColorStop(0, 'rgba(255,77,157,0.35)');
+      glow.addColorStop(1, 'rgba(0,229,255,0)');
+      ctx.fillStyle = glow;
+      roundRect(0,0,size,size,r);
+      ctx.fill();
+
+      // Texto A | A con brillo
+      ctx.font = 'bold 86px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      // Sombra cian
+      ctx.shadowColor = '#00e5ff';
+      ctx.shadowBlur = 18;
+      ctx.fillStyle = '#eaf6ff';
+      ctx.fillText('É | E', size/2, size/2);
+
+      // ToDataURL
+      const url = c.toDataURL('image/png');
+      const touch = document.getElementById('app-touch-icon');
+      const fav = document.getElementById('app-favicon');
+      if (touch) touch.href = url;
+      if (fav) fav.href = url;
+    })();
+
+    // Fondo reactivo al puntero para un brillo "neón"
+    const updateMouseVars = (x, y) => {
+      document.documentElement.style.setProperty('--mx', x + 'px');
+      document.documentElement.style.setProperty('--my', y + 'px');
+    };
+
+    window.addEventListener('pointermove', (e) => updateMouseVars(e.clientX, e.clientY));
+
+    // En móviles, usar el centro al tocar
+    window.addEventListener('pointerdown', (e) => updateMouseVars(e.clientX || innerWidth/2, e.clientY || innerHeight/2));
+  </script>
+</body>
+</html>
